@@ -1,0 +1,33 @@
+    <Veh>
+      <PlatformId>1234566</PlatformId>
+      <Plate>{license_plate}</Plate>
+      <Label>{license_plate}</Label>
+      <Symbol>0</Symbol>
+      <Lat>{latitude}</Lat>
+      <Lon>{longitude}</Lon>
+      <Speed>{speed}</Speed>
+      <LastMileage>{last_mileage}</LastMileage>
+      <Head>{heading}</Head>
+      <Address>{address}</Address>
+      <Date>{last_update}</Date>
+      <CustomerDriverID>123456789</CustomerDriverID>
+      <driverId>123456789</driverId>
+      <driverName>ituran app4ALL 1234567</driverName>
+      <driverphone />
+      <IsSafety>false</IsSafety>
+      <IsRfUnit>false</IsRfUnit>
+      <Units>
+        <Unit>
+          <PocsagStr>1.1.1.1</PocsagStr>
+          <Services>
+            <Service>
+              <ProductName>Ituran4All</ProductName>
+            </Service>
+          </Services>
+        </Unit>
+      </Units>
+      <BatteryVoltage>-1</BatteryVoltage>
+      <BatteryVoltageDate>0001-01-01T00:00:00</BatteryVoltageDate>
+      <Model>{model}</Model>
+      <Make>{make}</Make>
+    </Veh>

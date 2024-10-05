@@ -1,0 +1,12 @@
+<ServiceListPlatformsDetails xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.ituran.com/IturanMobileService">
+  <ReturnCode>OK</ReturnCode>
+  <ErrorDescription />
+  <Username>{id_number}</Username>
+  <VehList>
+{vehicles}
+  </VehList>
+  <Timelast>total=15&lt;br&gt;Details:</Timelast>
+  <HasToChangePassword>false</HasToChangePassword>
+  <UrlRedirectMode>OFF</UrlRedirectMode>
+  <UrlToRedirectTo />
+</ServiceListPlatformsDetails>

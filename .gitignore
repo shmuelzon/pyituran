@@ -1,0 +1,14 @@
+.venv/
+
+*.egg-info/
+build/
+dist/
+
+__pycache__/
+
+.coverage
+coverage.*
+report.xml
+.pytest_cache
+
+*.swp

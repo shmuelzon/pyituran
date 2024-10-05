@@ -1,0 +1,23 @@
+name: Release
+
+on:
+  release:
+    types: [ published, prereleased ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
+      - name: Build
+        run: make
+      - name: Upload release to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
