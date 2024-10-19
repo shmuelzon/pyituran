@@ -8,9 +8,10 @@ import uuid
 import xml.etree.ElementTree as ElementTree
 
 from pyituran.const import (
+    ACTIVATION_URL,
     ERROR_INVALID_CREDENTIALS,
     ERROR_OK,
-    ACTIVATION_URL,
+    ERROR_WRONG_OTP_CODE,
     ITURAN_GET_VEHICLES_URL,
     OTP_VERIFICATION_URL,
     XML_ERROR_DESCRIPTION,
@@ -18,6 +19,7 @@ from pyituran.const import (
     XML_RETURN_CODE,
     XML_VEHICLES_LIST,
 )
+from pyituran.exceptions import IturanApiError, IturanAuthError
 from pyituran.vehicle import Vehicle
 
 
@@ -44,10 +46,8 @@ class Ituran:
         try:
             _ = await self.get_vehicles()
             return True
-        except Exception as e:
-            if len(e.args) > 0 and e.args[0] == ERROR_INVALID_CREDENTIALS:
-                return False
-            raise
+        except IturanAuthError:
+            return False
 
     async def request_otp(self) -> bool:
         data = FormData()
@@ -65,11 +65,15 @@ class Ituran:
             root = ElementTree.fromstring(response_data)
             response_status = root.find(XML_RESPONSE_STATUS)
             assert response_status is not None
+            if response_status.text == ERROR_INVALID_CREDENTIALS:
+                raise IturanAuthError
             if response_status.text != ERROR_OK:
                 raise Exception(response_status.text)
+        except IturanAuthError:
+            raise
         except Exception as e:
             logging.error(f"Failed requesting OTP: {e}")
-            raise
+            raise IturanApiError(e)
         return True
 
     async def authenticate(self, otp: str) -> bool:
@@ -90,11 +94,15 @@ class Ituran:
             root = ElementTree.fromstring(response_data)
             response_status = root.find(XML_RESPONSE_STATUS)
             assert response_status is not None
+            if response_status.text == ERROR_WRONG_OTP_CODE:
+                raise IturanAuthError
             if response_status.text != ERROR_OK:
-                raise Exception(response_status.text)
-        except Exception as e:
-            logging.error(f"Failed requesting OTP: {e}")
+                raise IturanApiError(response_status.text)
+        except IturanAuthError:
             raise
+        except Exception as e:
+            logging.error(f"Failed authenticating: {e}")
+            raise IturanApiError(e)
         return True
 
     async def get_vehicles(self) -> List[Vehicle]:
@@ -103,14 +111,18 @@ class Ituran:
             root = await self.__get_vehicles_xml()
             error = self.__get_error_from_response(root)
             if error is not None:
-                raise Exception(error)
+                if error == ERROR_INVALID_CREDENTIALS:
+                    raise IturanAuthError
+                raise IturanApiError(error)
             vehicles_list = root.find(XML_VEHICLES_LIST)
             assert vehicles_list is not None
             for vehicle in vehicles_list:
                 vehicles.append(Vehicle(vehicle))
+        except IturanAuthError:
+            raise
         except Exception as e:
             logging.error(f"Failed getting list of vehicles: {e}")
-            raise
+            raise IturanApiError(e)
         return vehicles
 
     @property
@@ -128,7 +140,8 @@ class Ituran:
                 ITURAN_GET_VEHICLES_URL, data=data
             ) as response:
                 response_data = await response.text()
-        assert response.status == 200
+        if response.status != 200:
+            raise IturanApiError
         logger.debug(f"Got {response.status}: {response_data}")
         return ElementTree.fromstring(response_data)
 

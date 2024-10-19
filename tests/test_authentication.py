@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch
 
 from pyituran import Ituran
+from pyituran.exceptions import IturanApiError
 
 from .mock_response import (
     MockResponse,
@@ -45,5 +46,5 @@ async def test_invalid_status() -> None:
 
     with patch("aiohttp.ClientSession.post", return_value=response):
         ituran = Ituran(ID_NUMBER, "0501234567", "deadbeef")
-        with pytest.raises(Exception):
+        with pytest.raises(IturanApiError):
             await ituran.is_authenticated()
