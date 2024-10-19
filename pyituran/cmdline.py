@@ -68,8 +68,8 @@ async def async_main(args=None):
             else:
                 break
         print(
-            "Success!\n"
-            + f"Please keep the following mobile ID for future use: {ituran.mobile_id}"
+            "Success!\nPlease keep the following mobile ID "
+            + f"for future use: {ituran.mobile_id}"
         )
 
     vehicles = await ituran.get_vehicles()
@@ -92,4 +92,4 @@ def main(args=None):
 
 
 if __name__ == "__main__":
-    main() # pragma: no cover
+    main()  # pragma: no cover
