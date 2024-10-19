@@ -1,5 +1,5 @@
 PROJECT_NAME := pyituran
-VERSION := $(shell git describe --tags --always)
+VERSION := $(shell git describe --tags --always | sed -r 's/-([[:digit:]]*)-.*/.dev\1/')
 export VERSION
 
 PYTHON_VERSION := 3.8
