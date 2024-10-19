@@ -2,11 +2,15 @@ import pytest
 import string
 from unittest.mock import patch
 
+from pyituran.exceptions import IturanApiError, IturanAuthError
+
 from .mock_response import (
-    MockResponse,
     AUTHENTICATE_RESPONSE,
+    AUTHENTICATE_RESPONSE_WITH_UNKNOWN_ERROR,
     AUTHENTICATE_RESPONSE_WITH_WRONG_OTP,
+    MockResponse,
     REQUEST_OTP_RESPONSE,
+    REQUEST_OTP_RESPONSE_UNKNOWN_ERROR,
     REQUEST_OTP_RESPONSE_WRONG_CREDENTIALS,
 )
 from pyituran import Ituran
@@ -38,7 +42,20 @@ async def test_request_otp_with_bad_credentials() -> None:
 
     with patch("aiohttp.ClientSession.post", return_value=response):
         ituran = Ituran(ID_NUMBER, PHONE_NUMBER)
-        with pytest.raises(Exception):
+        with pytest.raises(IturanAuthError):
+            await ituran.request_otp()
+
+
+@pytest.mark.asyncio
+async def test_request_otp_with_unknown_error() -> None:
+    response = MockResponse(
+        200,
+        REQUEST_OTP_RESPONSE_UNKNOWN_ERROR,
+    )
+
+    with patch("aiohttp.ClientSession.post", return_value=response):
+        ituran = Ituran(ID_NUMBER, PHONE_NUMBER)
+        with pytest.raises(IturanApiError):
             await ituran.request_otp()
 
 
@@ -55,6 +72,19 @@ async def test_request_otp() -> None:
 
 
 @pytest.mark.asyncio
+async def test_authenticate_with_unknown_error() -> None:
+    response = MockResponse(
+        200,
+        AUTHENTICATE_RESPONSE_WITH_UNKNOWN_ERROR,
+    )
+
+    with patch("aiohttp.ClientSession.post", return_value=response):
+        ituran = Ituran(ID_NUMBER, PHONE_NUMBER)
+        with pytest.raises(IturanApiError):
+            await ituran.authenticate("123456")
+
+
+@pytest.mark.asyncio
 async def test_authenticate_with_wrong_otp() -> None:
     response = MockResponse(
         200,
@@ -63,7 +93,20 @@ async def test_authenticate_with_wrong_otp() -> None:
 
     with patch("aiohttp.ClientSession.post", return_value=response):
         ituran = Ituran(ID_NUMBER, PHONE_NUMBER)
-        with pytest.raises(Exception):
+        with pytest.raises(IturanAuthError):
+            await ituran.authenticate("123456")
+
+
+@pytest.mark.asyncio
+async def test_authenticate_with_bad_response() -> None:
+    response = MockResponse(
+        200,
+        "",
+    )
+
+    with patch("aiohttp.ClientSession.post", return_value=response):
+        ituran = Ituran(ID_NUMBER, PHONE_NUMBER)
+        with pytest.raises(IturanApiError):
             await ituran.authenticate("123456")
 
 

@@ -29,15 +29,24 @@ def load_xml_template(file_name: str) -> str:
 
 
 REQUEST_OTP_RESPONSE = load_xml_template("request_otp_response.xml")
+REQUEST_OTP_RESPONSE_UNKNOWN_ERROR = load_xml_template(
+    "request_otp_response_unknown_error.xml"
+)
 REQUEST_OTP_RESPONSE_WRONG_CREDENTIALS = load_xml_template(
     "request_otp_response_wrong_credentials.xml"
 )
 AUTHENTICATE_RESPONSE = load_xml_template("authenticate_response.xml")
+AUTHENTICATE_RESPONSE_WITH_UNKNOWN_ERROR = load_xml_template(
+    "authenticate_response_with_unknown_error.xml"
+)
 AUTHENTICATE_RESPONSE_WITH_WRONG_OTP = load_xml_template(
     "authenticate_response_with_wrong_otp.xml"
 )
 GET_VEHICLES_RESPONSE = load_xml_template("get_vehicles_response_base.xml")
 VEHICLE_RESPONSE = load_xml_template("get_vehicles_response_vehicle.xml")
+GET_VEHICLES_RESPONSE_UNKNOWN_ERROR = load_xml_template(
+    "get_vehicles_response_unknown_error.xml"
+)
 GET_VEHICLES_RESPONSE_WRONG_CREDENTIALS = load_xml_template(
     "get_vehicles_response_wrong_credentials.xml"
 )

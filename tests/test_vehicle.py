@@ -3,14 +3,18 @@ import pytest
 from unittest.mock import patch
 
 from pyituran import Ituran
+from pyituran.exceptions import IturanApiError, IturanAuthError
 
 from .mock_response import (
     MockResponse,
     GET_VEHICLES_RESPONSE,
+    GET_VEHICLES_RESPONSE_UNKNOWN_ERROR,
+    GET_VEHICLES_RESPONSE_WRONG_CREDENTIALS,
     VEHICLE_RESPONSE,
 )
 
 ID_NUMBER = "123456789"
+PHONE_NUMBER = "0501234567"
 LICENSE_PLATE = "12345678"
 LATITUTE = 25.0
 LONGITUDE = -71.0
@@ -46,7 +50,7 @@ async def test_vehicle() -> None:
     )
 
     with patch("aiohttp.ClientSession.post", return_value=response):
-        ituran = Ituran(ID_NUMBER, "0501234567")
+        ituran = Ituran(ID_NUMBER, PHONE_NUMBER)
         vehicles = await ituran.get_vehicles()
         assert len(vehicles) == 1
         vehicle = vehicles[0]
@@ -60,3 +64,55 @@ async def test_vehicle() -> None:
         assert vehicle.model == MODEL
         assert vehicle.make == MAKE
         assert str(vehicle) == f"{MAKE} {MODEL} @ ({LATITUTE}, {LONGITUDE})"
+
+
+@pytest.mark.asyncio
+async def test_vehicles_bad_response_code() -> None:
+    response = MockResponse(
+        400,
+        GET_VEHICLES_RESPONSE.format(id_number=ID_NUMBER, vehicles=""),
+    )
+
+    with patch("aiohttp.ClientSession.post", return_value=response):
+        ituran = Ituran(ID_NUMBER, PHONE_NUMBER)
+        with pytest.raises(IturanApiError):
+            await ituran.get_vehicles()
+
+
+@pytest.mark.asyncio
+async def test_vehicles_bad_response_content() -> None:
+    response = MockResponse(
+        200,
+        "",
+    )
+
+    with patch("aiohttp.ClientSession.post", return_value=response):
+        ituran = Ituran(ID_NUMBER, PHONE_NUMBER)
+        with pytest.raises(IturanApiError):
+            await ituran.get_vehicles()
+
+
+@pytest.mark.asyncio
+async def test_vehicles_not_authenticated() -> None:
+    response = MockResponse(
+        200,
+        GET_VEHICLES_RESPONSE_WRONG_CREDENTIALS.format(id_number=ID_NUMBER),
+    )
+
+    with patch("aiohttp.ClientSession.post", return_value=response):
+        ituran = Ituran(ID_NUMBER, PHONE_NUMBER)
+        with pytest.raises(IturanAuthError):
+            await ituran.get_vehicles()
+
+
+@pytest.mark.asyncio
+async def test_vehicles_unknown_error() -> None:
+    response = MockResponse(
+        200,
+        GET_VEHICLES_RESPONSE_UNKNOWN_ERROR.format(id_number=ID_NUMBER),
+    )
+
+    with patch("aiohttp.ClientSession.post", return_value=response):
+        ituran = Ituran(ID_NUMBER, PHONE_NUMBER)
+        with pytest.raises(IturanApiError):
+            await ituran.get_vehicles()

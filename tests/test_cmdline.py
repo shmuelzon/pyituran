@@ -7,8 +7,10 @@ from pyituran import cmdline
 from .mock_response import (
     MockResponse,
     REQUEST_OTP_RESPONSE,
+    REQUEST_OTP_RESPONSE_UNKNOWN_ERROR,
     REQUEST_OTP_RESPONSE_WRONG_CREDENTIALS,
     AUTHENTICATE_RESPONSE,
+    AUTHENTICATE_RESPONSE_WITH_UNKNOWN_ERROR,
     AUTHENTICATE_RESPONSE_WITH_WRONG_OTP,
     GET_VEHICLES_RESPONSE,
     GET_VEHICLES_RESPONSE_WRONG_CREDENTIALS,
@@ -83,7 +85,25 @@ def test_not_authenticated() -> None:
             cmdline.main(["--id-number", ID_NUMBER, "--mobile-id", MOBILE_ID])
 
 
-def test_failed_to_authenticated() -> None:
+def test_failed_to_authenticated_unknown_error() -> None:
+    not_auth_response = MockResponse(
+        200,
+        GET_VEHICLES_RESPONSE_WRONG_CREDENTIALS.format(id_number=ID_NUMBER),
+    )
+    wrong_credentials_response = MockResponse(
+        200,
+        REQUEST_OTP_RESPONSE_UNKNOWN_ERROR,
+    )
+
+    with patch(
+        "aiohttp.ClientSession.post",
+        side_effect=[not_auth_response, wrong_credentials_response],
+    ):
+        with patch("builtins.input", return_value="y"):
+            cmdline.main(["--id-number", ID_NUMBER, "--mobile-id", MOBILE_ID])
+
+
+def test_failed_to_authenticated_wrong_credentials() -> None:
     not_auth_response = MockResponse(
         200,
         GET_VEHICLES_RESPONSE_WRONG_CREDENTIALS.format(id_number=ID_NUMBER),
@@ -114,6 +134,10 @@ def test_authenticate() -> None:
         200,
         AUTHENTICATE_RESPONSE_WITH_WRONG_OTP,
     )
+    otp_unknown_error = MockResponse(
+        200,
+        AUTHENTICATE_RESPONSE_WITH_UNKNOWN_ERROR,
+    )
     correct_otp = MockResponse(
         200,
         AUTHENTICATE_RESPONSE,
@@ -129,11 +153,13 @@ def test_authenticate() -> None:
             not_auth_response,
             auth_response,
             wrong_otp,
+            otp_unknown_error,
             correct_otp,
             vehicles,
         ],
     ):
         with patch(
-            "builtins.input", side_effect=["y", OTP_CODE + "1", OTP_CODE]
+            "builtins.input",
+            side_effect=["y", OTP_CODE + "1", OTP_CODE, OTP_CODE],
         ):
             cmdline.main(["--id-number", ID_NUMBER, "--mobile-id", MOBILE_ID])

@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import sys
 from pyituran import Ituran
+from pyituran.exceptions import IturanApiError, IturanAuthError
 
 
 async def async_main(args=None):
@@ -55,16 +56,21 @@ async def async_main(args=None):
             return
         try:
             await ituran.request_otp()
-        except Exception:
+        except IturanAuthError:
             print("Failed requesting OTP, please verify ID and phone number")
+            return
+        except IturanApiError:
+            print("Error accessing Ituran service, please try again")
             return
         print("OTP request sent.")
         while True:
             otp = input("Please input the received one-time code: ")
             try:
                 await ituran.authenticate(otp)
-            except:
+            except IturanAuthError:
                 print("Incorrect code, please try again.")
+            except IturanApiError:
+                print("Error accessing Ituran service, please try again")
             else:
                 break
         print(
