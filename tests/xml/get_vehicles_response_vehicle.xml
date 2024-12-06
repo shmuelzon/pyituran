@@ -26,7 +26,7 @@
           </Services>
         </Unit>
       </Units>
-      <BatteryVoltage>-1</BatteryVoltage>
+      <BatteryVoltage>{battery_voltage}</BatteryVoltage>
       <BatteryVoltageDate>0001-01-01T00:00:00</BatteryVoltageDate>
       <Model>{model}</Model>
       <Make>{make}</Make>

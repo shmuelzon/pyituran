@@ -6,6 +6,7 @@ from typing import Tuple
 import xml.etree.ElementTree as ElementTree
 
 from pyituran.const import (
+    XML_VEHICLE_BATTERY_VOLTAGE,
     XML_VEHICLE_MODEL,
     XML_VEHICLE_MAKE,
     XML_VEHICLE_PLATE,
@@ -43,6 +44,9 @@ class Vehicle:
         self.__mileage: float = float(
             self.__xml_get_field(xml, XML_VEHICLE_LAST_MILEAGE)
         )
+        self.__battery_voltage: float = float(
+            self.__xml_get_field(xml, XML_VEHICLE_BATTERY_VOLTAGE)
+        )
         self.__last_update: datetime = datetime.fromisoformat(
             self.__xml_get_field(xml, XML_VEHICLE_UPDATE_DATE)
         )
@@ -78,6 +82,10 @@ class Vehicle:
     @property
     def mileage(self) -> float:
         return self.__mileage
+
+    @property
+    def battery_voltage(self) -> float:
+        return self.__battery_voltage
 
     @property
     def last_update(self) -> datetime:
