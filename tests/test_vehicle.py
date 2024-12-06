@@ -23,6 +23,7 @@ LAST_MILEAGE = 2000.5
 HEADING = 150
 ADDRESS = "Bermuda Triangle"
 LAST_UPDATE = datetime(2024, 1, 2, 8, 30)
+BATTERY_VOLTAGE = 12.3
 MODEL = "Fake Model"
 MAKE = "Fake Make"
 
@@ -38,6 +39,7 @@ async def test_vehicle() -> None:
         heading=HEADING,
         address=ADDRESS,
         last_update=LAST_UPDATE.isoformat(),
+        battery_voltage=BATTERY_VOLTAGE,
         model=MODEL,
         make=MAKE,
     )
@@ -61,6 +63,7 @@ async def test_vehicle() -> None:
         assert vehicle.heading == HEADING
         assert vehicle.address == ADDRESS
         assert vehicle.last_update == LAST_UPDATE
+        assert vehicle.battery_voltage == BATTERY_VOLTAGE
         assert vehicle.model == MODEL
         assert vehicle.make == MAKE
         assert str(vehicle) == f"{MAKE} {MODEL} @ ({LATITUTE}, {LONGITUDE})"

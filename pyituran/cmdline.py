@@ -89,6 +89,7 @@ async def async_main(args=None):
             + f"\tHeading: {vehicle.heading}\n"
             + f"\tSpeed: {vehicle.speed}\n"
             + f"\tMileage: {vehicle.mileage}\n"
+            + f"\tBattery voltage: {vehicle.battery_voltage}\n"
             + f"\tLast update: {vehicle.last_update}\n"
         )
 

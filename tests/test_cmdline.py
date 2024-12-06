@@ -30,6 +30,7 @@ LAST_MILEAGE = 2000.5
 HEADING = 150
 ADDRESS = "Bermuda Triangle"
 LAST_UPDATE = datetime(2024, 1, 2, 8, 30)
+BATTERY_VOLTAGE = 12.3
 MODEL = "Fake Model"
 MAKE = "Fake Make"
 
@@ -59,6 +60,7 @@ def test_authenticated() -> None:
         heading=HEADING,
         address=ADDRESS,
         last_update=LAST_UPDATE.isoformat(),
+        battery_voltage=BATTERY_VOLTAGE,
         model=MODEL,
         make=MAKE,
     )
