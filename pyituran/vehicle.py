@@ -4,6 +4,7 @@ from datetime import datetime
 import logging
 from typing import Tuple
 import xml.etree.ElementTree as ElementTree
+from zoneinfo import ZoneInfo
 
 from pyituran.const import (
     XML_VEHICLE_BATTERY_VOLTAGE,
@@ -50,6 +51,10 @@ class Vehicle:
         self.__last_update: datetime = datetime.fromisoformat(
             self.__xml_get_field(xml, XML_VEHICLE_UPDATE_DATE)
         )
+        if self.__last_update.tzinfo is None:
+            self.__last_update = self.__last_update.replace(
+                tzinfo=ZoneInfo("Asia/Jerusalem")
+            )
 
     @property
     def make(self) -> str:

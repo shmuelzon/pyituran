@@ -13,7 +13,6 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - '3.8'
           - '3.9'
           - '3.10'
           - '3.11'
@@ -38,7 +37,7 @@ jobs:
         run: make test V=1
       - name: Upload library
         uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.8'
+        if: matrix.python-version == '3.9'
         with:
           name: Wheel
           path: 'dist/*.whl'

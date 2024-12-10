@@ -37,7 +37,7 @@ setup(
     packages=find_packages(include=["pyituran*"]),
     install_requires=read_requirements("requirements.txt"),
     extras_require={"test": read_requirements("dev-requirements.txt")},
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     license="MIT",
     entry_points={"console_scripts": ["ituran = pyituran.cmdline:main"]},
 )

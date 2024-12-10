@@ -1,6 +1,7 @@
 from datetime import datetime
 import pytest
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 from pyituran import cmdline
 
@@ -29,7 +30,7 @@ SPEED = 50
 LAST_MILEAGE = 2000.5
 HEADING = 150
 ADDRESS = "Bermuda Triangle"
-LAST_UPDATE = datetime(2024, 1, 2, 8, 30)
+LAST_UPDATE = datetime(2024, 1, 2, 8, 30, tzinfo=ZoneInfo("Asia/Jerusalem"))
 BATTERY_VOLTAGE = 12.3
 MODEL = "Fake Model"
 MAKE = "Fake Make"
@@ -59,7 +60,7 @@ def test_authenticated() -> None:
         last_mileage=LAST_MILEAGE,
         heading=HEADING,
         address=ADDRESS,
-        last_update=LAST_UPDATE.isoformat(),
+        last_update=LAST_UPDATE.replace(tzinfo=None).isoformat(),
         battery_voltage=BATTERY_VOLTAGE,
         model=MODEL,
         make=MAKE,
