@@ -1,0 +1,5 @@
+    <DiagnosticValues>
+      <Label>{label}</Label>
+      <Value>{value}</Value>
+      <LocTime>{update_time}</LocTime>
+    </DiagnosticValues>
