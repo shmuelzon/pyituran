@@ -6,6 +6,8 @@ from zoneinfo import ZoneInfo
 from pyituran import cmdline
 
 from .mock_response import (
+    DIAGNOSTIC_VALUE_RESPONSE,
+    GET_ELECTRIC_DATA_RESPONSE,
     MockResponse,
     REQUEST_OTP_RESPONSE,
     REQUEST_OTP_RESPONSE_UNKNOWN_ERROR,
@@ -20,6 +22,7 @@ from .mock_response import (
 
 ID_NUMBER = "123456789"
 PHONE_NUMBER = "0501234567"
+PLATFORM_ID = "123456"
 MOBILE_ID = "1234567890abcdef"
 OTP_CODE = "123456"
 
@@ -34,6 +37,10 @@ LAST_UPDATE = datetime(2024, 1, 2, 8, 30, tzinfo=ZoneInfo("Asia/Jerusalem"))
 BATTERY_VOLTAGE = 12.3
 MODEL = "Fake Model"
 MAKE = "Fake Make"
+ITURAN4ALL = "Ituran4All"
+APP4ALLEV = "Ituran app4AllEV"
+BATTERY_PERCENT = 42
+BATTERY_RANGE = 456
 
 
 def test_no_arguments() -> None:
@@ -53,6 +60,7 @@ def test_only_id() -> None:
 
 def test_authenticated() -> None:
     vehicle_xml = VEHICLE_RESPONSE.format(
+        platform_id=PLATFORM_ID,
         license_plate=LICENSE_PLATE,
         latitude=LATITUTE,
         longitude=LONGITUDE,
@@ -64,6 +72,7 @@ def test_authenticated() -> None:
         battery_voltage=BATTERY_VOLTAGE,
         model=MODEL,
         make=MAKE,
+        product_name=ITURAN4ALL,
     )
 
     response = MockResponse(
@@ -166,3 +175,76 @@ def test_authenticate() -> None:
             side_effect=["y", OTP_CODE + "1", OTP_CODE, OTP_CODE],
         ):
             cmdline.main(["--id-number", ID_NUMBER, "--mobile-id", MOBILE_ID])
+
+
+def test_output() -> None:
+    vehicle_xml = VEHICLE_RESPONSE.format(
+        platform_id=PLATFORM_ID,
+        license_plate=LICENSE_PLATE,
+        latitude=LATITUTE,
+        longitude=LONGITUDE,
+        speed=SPEED,
+        last_mileage=LAST_MILEAGE,
+        heading=HEADING,
+        address=ADDRESS,
+        last_update=LAST_UPDATE.replace(tzinfo=None).isoformat(),
+        battery_voltage=BATTERY_VOLTAGE,
+        model=MODEL,
+        make=MAKE,
+        product_name=APP4ALLEV,
+    )
+    electric_data_xml = (
+        DIAGNOSTIC_VALUE_RESPONSE.format(
+            label="Electric Data - Charging AC Mode - 2227",
+            value=0,
+            update_time=LAST_UPDATE.replace(tzinfo=None).isoformat(),
+        )
+        + DIAGNOSTIC_VALUE_RESPONSE.format(
+            label="Electric Data - Battery Status Of Charge - 2334",
+            value=BATTERY_PERCENT,
+            update_time=LAST_UPDATE.replace(tzinfo=None).isoformat(),
+        )
+        + DIAGNOSTIC_VALUE_RESPONSE.format(
+            label="Electric Data - Vehicle Range Of Battery - 2229",
+            value=BATTERY_RANGE,
+            update_time=LAST_UPDATE.replace(tzinfo=None).isoformat(),
+        )
+    )
+
+    response = MockResponse(
+        200,
+        GET_VEHICLES_RESPONSE.format(
+            id_number=ID_NUMBER, vehicles=vehicle_xml
+        ),
+    )
+    electric_data_response = MockResponse(
+        200,
+        GET_ELECTRIC_DATA_RESPONSE.format(
+            diagnostic_values=electric_data_xml,
+        ),
+    )
+
+    with patch(
+        "aiohttp.ClientSession.post",
+        side_effect=[response, response, response, electric_data_response],
+    ), patch("builtins.print") as print_mocked:
+        cmdline.main(["--id-number", ID_NUMBER, "--mobile-id", MOBILE_ID])
+        assert (
+            print_mocked.call_args_list[0][0][0]
+            == f"License plate: {LICENSE_PLATE}:\n"
+            + f"\tMake: {MAKE}\n"
+            + f"\tModel: {MODEL}\n"
+            + f"\tLocation: ({LATITUTE}, {LONGITUDE})\n"
+            + f"\tAddress: {ADDRESS}\n"
+            + f"\tHeading: {HEADING}\n"
+            + f"\tSpeed: {SPEED}\n"
+            + f"\tMileage: {LAST_MILEAGE}\n"
+            + f"\tBattery voltage: {BATTERY_VOLTAGE}\n"
+            + f"\tLast update: {LAST_UPDATE}\n"
+        )
+        assert (
+            print_mocked.call_args_list[1][0][0]
+            == "\tIs charging: False\n"
+            + f"\tBattery level: {BATTERY_PERCENT}\n"
+            + f"\tBattery range: {BATTERY_RANGE}\n"
+        )

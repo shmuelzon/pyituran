@@ -1,5 +1,5 @@
     <Veh>
-      <PlatformId>1234566</PlatformId>
+      <PlatformId>{platform_id}</PlatformId>
       <Plate>{license_plate}</Plate>
       <Label>{license_plate}</Label>
       <Symbol>0</Symbol>
@@ -21,7 +21,7 @@
           <PocsagStr>1.1.1.1</PocsagStr>
           <Services>
             <Service>
-              <ProductName>Ituran4All</ProductName>
+              <ProductName>{product_name}</ProductName>
             </Service>
           </Services>
         </Unit>

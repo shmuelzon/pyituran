@@ -45,7 +45,7 @@ lint: $(VENV_DIRECTORY)
 	$(Q)$(DOCKER_CMD) $(VENV_DIRECTORY)/bin/black -l 79 --check --diff $(PROJECT_NAME) tests
 
 test: $(VENV_DIRECTORY)
-	$(Q)$(DOCKER_CMD) $(VENV_DIRECTORY)/bin/pytest -v --cov=$(PROJECT_NAME) --junitxml=$(TEST_REPORT) --cov-report=xml:$(COVERAGE_REPORT) --cov-report=term tests
+	$(Q)$(DOCKER_CMD) $(VENV_DIRECTORY)/bin/pytest -vv --cov=$(PROJECT_NAME) --junitxml=$(TEST_REPORT) --cov-report=xml:$(COVERAGE_REPORT) --cov-report=term tests
 
 $(WHEEL): $(VENV_DIRECTORY) $(SRC_FILES)
 	$(Q)$(DOCKER_CMD) $(VENV_DIRECTORY)/bin/python setup.py bdist_wheel

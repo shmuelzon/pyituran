@@ -12,11 +12,20 @@ from pyituran.const import (
     ERROR_INVALID_CREDENTIALS,
     ERROR_OK,
     ERROR_WRONG_OTP_CODE,
+    EV_PRODUCT_NAMES,
+    ITURAN_GET_ELECTRIC_DATA_URL,
     ITURAN_GET_VEHICLES_URL,
     OTP_VERIFICATION_URL,
     XML_ERROR_DESCRIPTION,
     XML_RESPONSE_STATUS,
     XML_RETURN_CODE,
+    XML_VEHICLE_DATA,
+    XML_VEHICLE_PLATFORM_ID,
+    XML_VEHICLE_SERVICE,
+    XML_VEHICLE_PRODUCT_NAME,
+    XML_VEHICLE_SERVICES,
+    XML_VEHICLE_UNIT,
+    XML_VEHICLE_UNITS,
     XML_VEHICLES_LIST,
 )
 from pyituran.exceptions import IturanApiError, IturanAuthError
@@ -117,7 +126,8 @@ class Ituran:
             vehicles_list = root.find(XML_VEHICLES_LIST)
             assert vehicles_list is not None
             for vehicle in vehicles_list:
-                vehicles.append(Vehicle(vehicle))
+                electric_data = await self.__get_electic_data(vehicle)
+                vehicles.append(Vehicle(vehicle, electric_data))
         except IturanAuthError:
             raise
         except Exception as e:
@@ -145,6 +155,35 @@ class Ituran:
         logger.debug(f"Got {response.status}: {response_data}")
         return ElementTree.fromstring(response_data)
 
+    async def __get_electic_data(
+        self, vehicle: ElementTree.Element
+    ) -> Optional[ElementTree.Element]:
+        if not self.__is_electric_vehicle(vehicle):
+            return None
+        platform_id = vehicle.findtext(XML_VEHICLE_PLATFORM_ID) or ""
+        xml = await self.__get_electric_data_xml(platform_id)
+        if xml is None:
+            return None
+        return xml.find(XML_VEHICLE_DATA)
+
+    async def __get_electric_data_xml(
+        self, platform_id: str
+    ) -> Optional[ElementTree.Element]:
+        data = FormData()
+        data.add_field("UserName", self.__id_number)
+        data.add_field("PlatformId", platform_id)
+        data.add_field("Password", self.__mobile_id)
+        async with aiohttp.ClientSession() as session:
+            logger.debug(f"Getting electric data for {platform_id}")
+            async with session.post(
+                ITURAN_GET_ELECTRIC_DATA_URL, data=data
+            ) as response:
+                response_data = await response.text()
+        if response.status != 200:
+            return None
+        logger.debug(f"Got {response.status}: {response_data}")
+        return ElementTree.fromstring(response_data)
+
     def __get_error_from_response(
         self, xml: ElementTree.Element
     ) -> Optional[str]:
@@ -154,6 +193,22 @@ class Ituran:
         if return_code.text == ERROR_OK.upper():
             return None
         return error_description.text
+
+    def __is_electric_vehicle(self, vehicle: ElementTree.Element) -> bool:
+        for product_name in vehicle.iterfind(
+            f"{XML_VEHICLE_UNITS}/{XML_VEHICLE_UNIT}/"
+            + f"{XML_VEHICLE_SERVICES}/{XML_VEHICLE_SERVICE}/"
+            + f"{XML_VEHICLE_PRODUCT_NAME}"
+        ):
+            product_name = (
+                product_name.text.lower() if product_name.text else ""
+            )
+            if any(
+                ev_product_name in product_name
+                for ev_product_name in EV_PRODUCT_NAMES
+            ):
+                return True
+        return False
 
     def __generate_mobile_id(self) -> str:
         return uuid.uuid4().hex[:16]

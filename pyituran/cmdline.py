@@ -92,6 +92,13 @@ async def async_main(args=None):
             + f"\tBattery voltage: {vehicle.battery_voltage}\n"
             + f"\tLast update: {vehicle.last_update}\n"
         )
+        if not vehicle.is_electric_vehicle:
+            continue
+        print(
+            f"\tIs charging: {vehicle.is_charging}\n"
+            + f"\tBattery level: {vehicle.battery_level}\n"
+            + f"\tBattery range: {vehicle.battery_range}\n"
+        )
 
 
 def main(args=None):

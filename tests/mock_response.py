@@ -50,3 +50,9 @@ GET_VEHICLES_RESPONSE_UNKNOWN_ERROR = load_xml_template(
 GET_VEHICLES_RESPONSE_WRONG_CREDENTIALS = load_xml_template(
     "get_vehicles_response_wrong_credentials.xml"
 )
+GET_ELECTRIC_DATA_RESPONSE = load_xml_template(
+    "get_electric_data_response_base.xml"
+)
+DIAGNOSTIC_VALUE_RESPONSE = load_xml_template(
+    "get_electric_data_response_diagnostic_value.xml"
+)
