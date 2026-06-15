@@ -31,7 +31,6 @@ from pyituran.const import (
 from pyituran.exceptions import IturanApiError, IturanAuthError
 from pyituran.vehicle import Vehicle
 
-
 logger = logging.getLogger(__package__)
 
 
