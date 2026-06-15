@@ -1,6 +1,6 @@
 """Ituran library constants."""
 
-DOMAIN = "https://www.ituran.com"
+DOMAIN = "https://app.ituran.com"
 SOAP_SERVICES = DOMAIN + "/SoapService"
 ACTIVATION_URL = SOAP_SERVICES + "/APPApi.asmx/AppActivation"
 OTP_VERIFICATION_URL = (
