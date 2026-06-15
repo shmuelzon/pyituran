@@ -26,7 +26,6 @@ from pyituran.const import (
     XML_VEHICLE_UPDATE_DATE,
 )
 
-
 logger = logging.getLogger(__package__)
 
 
